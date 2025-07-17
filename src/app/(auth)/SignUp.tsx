@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { router } from 'expo-router'
-import { Button } from 'react-native-paper'
+import { Button, Snackbar } from 'react-native-paper'
 import {auth } from '@/services/config' 
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { set } from 'firebase/database'
@@ -10,28 +10,35 @@ import { set } from 'firebase/database'
 
 const SignUpScreen = () => {
   const [loading , setLoading ] = useState(false);
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+    const onShowSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarVisible(true);
+  };
 
   const handleSignUp = async () =>{
     setLoading( true);
     if( !username || !email || !password || username.trim() === "" || email.trim() === "" || password.trim() === ""){
       setLoading(false);
-      return alert("Please fill all fields");
+      return onShowSnackbar("Please fill all fields");
     }
     if(password.length < 6){
       setLoading(false);
-      return alert("Password must be at least 6 characters long");
+      onShowSnackbar("Password must be at least 6 characters");
+      return; 
     }
 
     try{
       const userCredential = await createUserWithEmailAndPassword(auth , email, password);
       const user = userCredential.user;
       const id = user.uid;
-       
-      console.log("User created successfully:", user);
+
+      onShowSnackbar("Sign Up Successful");
       setLoading(false);
       
       
@@ -39,8 +46,10 @@ const SignUpScreen = () => {
 
 
     } catch (error) {
-      alert("Error creating account");
+      onShowSnackbar("Sign Up Failed. Please try again.");
       console.error("Sign Up Error", error);
+      setLoading(false);
+      return;
     }
   
     console.log("Sign Up" , {username , email , password});
@@ -50,6 +59,13 @@ const SignUpScreen = () => {
 
   return (
     <View style={styles.container}>
+       <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Sign Up</Text>
       </View>

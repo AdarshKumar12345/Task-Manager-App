@@ -300,7 +300,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { Badge, Button, Card, Divider, Text as PaperText } from "react-native-paper";
+import { Badge, Button, Card, Divider, Text as PaperText, Snackbar } from "react-native-paper";
 const { useAuth } = require("@/context/AuthContext");
 
 
@@ -394,10 +394,16 @@ const TaskCard = ({ task, onComplete, onDelete }: { task: Task; onComplete: (tas
 );
 
 const TaskScreen = () => {
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const { type } = useLocalSearchParams();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+    const onShowSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarVisible(true);
+  };
 
   // This function filters tasks based on the type ('daily', 'weekly', 'monthly')
   const handleTaskFiltering = (data: Task[]) => {
@@ -472,7 +478,7 @@ const TaskScreen = () => {
         const data = await fetchTasks();
         handleTaskFiltering(data);
       } catch (error) {
-        console.error("Error fetching tasks:", error);
+        onShowSnackbar("Error fetching tasks");
         // Consider using a more user-friendly error display like a toast message
       } finally {
         setLoading(false);
@@ -491,7 +497,7 @@ const TaskScreen = () => {
         )
       );
     } catch (error) {
-      console.error("Error completing task:", error);
+      onShowSnackbar("Error completing task");
     }
   };
 
@@ -526,6 +532,14 @@ const TaskScreen = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
       <Text style={styles.header}>{String(type).toUpperCase()} TASKS</Text>
 
       {/* Section for Incomplete Tasks */}

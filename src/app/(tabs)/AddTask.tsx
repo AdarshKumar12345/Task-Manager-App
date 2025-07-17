@@ -1,12 +1,14 @@
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Button } from "react-native-paper";
+import { Button, Snackbar } from "react-native-paper";
 import TimePeriod from "@/components/TimePeriod";
 import { router, useFocusEffect } from "expo-router";
 import PriorityComponent from "@/components/Prioritycomponent";
 import { addTask } from "@/lib/firestore/TasksManagment";
 
 const AddTaskScreen = () => {
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [timePeriodType, setTimePeriodType] = useState<string>("");
@@ -16,6 +18,11 @@ const AddTaskScreen = () => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [priority, setPriority] = useState<string>("medium");
+
+  const onShowSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarVisible(true);
+  };
 
  const setTimePeriod = (startDate: Date, endDate: Date, timePeriodType: string) => {
    setStartDate(startDate);
@@ -42,7 +49,7 @@ const AddTaskScreen = () => {
       title.trim() === "" ||
       description.trim() === ""
     ) {
-      return alert("Please fill all fields");
+      return onShowSnackbar("Please fill all fields");
     }
     console.log("Task Added:", { title, description });
     await addTask({
@@ -54,12 +61,19 @@ const AddTaskScreen = () => {
       priority: priority.trim(),
       completed: false,
     });
-    alert("Task added successfully");
+    onShowSnackbar("Task added successfully");
     router.replace("/Home");
 
   };
   return (
     <ScrollView>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
     <View style={styles.container}>
       <Text style={styles.header}>Add Task</Text>
       <View style={styles.form}>

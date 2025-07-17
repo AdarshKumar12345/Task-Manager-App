@@ -11,28 +11,34 @@ import { router } from "expo-router";
 import MyTasks from '@/constants/MyTasks'
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/services/config"; 
+import { Snackbar } from "react-native-paper";
 
 const LoginScreen = () => {
-  const taskArray = MyTasks;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const onShowSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarVisible(true);
+  };
   const handleLogin = async () => {
     // Add login logic here (API call / auth)
     // On success:
     if (!email || !password || email.trim() === "" || password.trim() === "") {
-      return alert("Please fill all fields");
+      return onShowSnackbar("Please fill all fields");
     }
     console.log("Login Attempt:", { email, password });
-    
-    try{
-      await  signInWithEmailAndPassword(auth, email, password);
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       router.replace({
         pathname: "/(tabs)/Home",
       });
 
-    }catch (error){
-      alert("Login failed. Please check your credentials.");
+    } catch (error) {
+      onShowSnackbar("Login failed. Please check your credentials.");
       console.error("Login Error", error);
     }
 
@@ -46,6 +52,13 @@ const LoginScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
       <View style={styles.container}>
         <Text style={styles.header}>Welcome Back</Text>
         <Text style={styles.subHeader}>Login to your account</Text>
