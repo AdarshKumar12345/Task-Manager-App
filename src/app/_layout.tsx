@@ -17,9 +17,9 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 const AuthGate = () => {
   const { user } = useAuth();
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false }}>
       {user ? (
-        <Stack.Screen name="(tabs)/Home" />
+        <Stack.Screen name="(tabs)/Home"  />
       ) : (
         <Stack.Screen name="(auth)/Login" />
       )}

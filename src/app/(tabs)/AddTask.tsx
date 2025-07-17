@@ -66,7 +66,7 @@ const AddTaskScreen = () => {
 
   };
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 16, backgroundColor: "#F4EBD3" }}>
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
